@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Load environment variables
+DIR=$(dirname "$0")
+if [ -f "${DIR}/.env" ]; then
+  set -a
+  . "${DIR}/.env"
+  set +a
+fi
+
 FILETYPES=("Ks" "Bac" "Kta" "Ukc" "Kyi")
 
 cat <<EOS
