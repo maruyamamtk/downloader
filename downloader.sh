@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Load environment variables
+DIR=$(dirname "$0")
+if [ -f "${DIR}/.env" ]; then
+  set -a
+  . "${DIR}/.env"
+  set +a
+fi
+
 JRDB_BASE_URL=http://www.jrdb.com/member/data/
 EXTENTION=.lzh
 
@@ -25,6 +33,15 @@ decompression() {
   lha -xw=${DOWNLOAD_FILE_OUTPUT_DIRECTORY}${FILETYPE} ${DOWNLOAD_FILE_OUTPUT_DIRECTORY}$(filepath)
 }
 
+convert_encoding() {
+  # 解凍されたテキストファイルを CP932 から UTF-8 に変換
+  for file in ${DOWNLOAD_FILE_OUTPUT_DIRECTORY}${FILETYPE}/*.txt; do
+    if [ -f "$file" ]; then
+      iconv -f CP932 -t UTF-8 "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+    fi
+  done
+}
+
 pre_process() {
   mkdir -p ${DOWNLOAD_FILE_OUTPUT_DIRECTORY}${FILETYPE}
 }
@@ -45,6 +62,7 @@ main() {
 
   download
   decompression
+  convert_encoding
   post_process
 }
 
